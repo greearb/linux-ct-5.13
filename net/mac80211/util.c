@@ -2080,7 +2080,10 @@ static int ieee80211_build_preq_ies_band(struct ieee80211_sub_if_data *sdata,
 
 	he_cap = ieee80211_get_he_sta_cap(sband);
 	if (he_cap) {
-		pos = ieee80211_ie_build_he_cap(sdata, pos, he_cap, end);
+		struct ieee80211_sta_he_cap my_cap;
+
+		ieee80211_adjust_he_cap(&my_cap, he_cap, sdata);
+		pos = ieee80211_ie_build_he_cap(sdata, pos, &my_cap, end);
 		if (!pos)
 			goto out_err;
 
