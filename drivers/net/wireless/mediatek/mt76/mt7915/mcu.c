@@ -1535,10 +1535,18 @@ mt7915_mcu_sta_muru_tlv(struct sk_buff *skb, struct ieee80211_sta *sta,
 	tlv = mt7915_mcu_add_tlv(skb, STA_REC_MURU, sizeof(*muru));
 
 	muru = (struct sta_rec_muru *)tlv;
-	muru->cfg.ofdma_dl_en = true;
-	/* mimo_ul_en not stable yet (Aug 9, 2021 */
-	/* muru->cfg.mimo_ul_en = true; */
-	muru->cfg.ofdma_ul_en = true;
+
+	if ((!(sta->mgd_flags & IEEE80211_STA_DISABLE_OFDMA)) &&
+	    elem->phy_cap_info[6] & IEEE80211_HE_PHY_CAP6_TRIG_SU_BEAMFORMING_FB) {
+		pr_info("STA: %pM  sta-muru-tlv, enabling OFDMA", sta->addr);
+		muru->cfg.ofdma_dl_en = true;
+		/* mimo_ul_en not stable yet (Aug 9, 2021 */
+		/* muru->cfg.mimo_ul_en = true; */
+		muru->cfg.ofdma_ul_en = true;
+	}
+	else {
+		pr_info("STA: %pM  sta-muru-tlv, NOT enabling OFDMA", sta->addr);
+	}
 
 	/* A non-AP HE station must support MU beamformee */
 	if (vif->type == NL80211_IFTYPE_STATION && vif->bss_conf.he_support)
