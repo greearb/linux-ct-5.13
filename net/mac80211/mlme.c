@@ -439,6 +439,10 @@ static int ieee80211_config_bw(struct ieee80211_sub_if_data *sdata,
 	    chandef.width > NL80211_CHAN_WIDTH_20)
 		flags |= ieee80211_chandef_downgrade(&chandef);
 
+	/* if igmdr has HE disabled, then we cannot re-enable that here. */
+	if (ifmgd->flags & IEEE80211_STA_DISABLE_HE)
+		flags |= IEEE80211_STA_DISABLE_HE;
+
 	if (cfg80211_chandef_identical(&chandef, &sdata->vif.bss_conf.chandef))
 		return 0;
 
